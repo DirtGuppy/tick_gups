@@ -1,0 +1,7 @@
+{
+    "backlog": {"ticket_name": {"type": "Bug", "detail": "This is where description of issue goes"}},
+    "in-progress": {},
+    "review": {},
+    "closed": {}
+    
+}

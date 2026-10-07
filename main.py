@@ -1,21 +1,46 @@
 import json
 import argparse
-import json
+
 
 
 def tick_create(new_entry):
+    with open("tickets.json", "r") as f:
+        tickets = json.load(f)
     title = new_entry[0]
     context_value = new_entry[1]
     descript = new_entry[2]
-    new_data = {
-        "title":{"type": context_value, "detail" : descript}}
-    with open("tickets.json","w") as f:
-        json.dump(new_data, f, indent=4, ensure_ascii=False)
+    tickets["backlog"][title] = {"type": context_value, "detail" : descript}
+    save_contents(tickets)
     return
 
+def save_contents(tickets):
+    with open("tickets.json", "w")as f:
+        json.dump(tickets, f, indent=4)
 
-def ticket_move():
-    #move a ticket up the chain to the next step
+
+def ticket_move(target_tick):
+    with open("tickets.json", "r") as f:
+        big_dict = json.load(f)
+    for step, tick_data in big_dict.items():
+        for tick_id in tick_data:
+            print(tick_id)
+            if tick_id == target_tick:
+                print("attempting movement please hold")
+                if step == "backlog":
+                    moving_entry = big_dict["backlog"].pop(tick_id)
+                    big_dict["in-progress"][target_tick] = moving_entry
+                    save_contents(big_dict)
+                    return
+                if step == "in-progress":
+                    moving_entry = big_dict["in-progress"].pop(tick_id)
+                    big_dict["review"][target_tick] = moving_entry
+                    save_contents(big_dict)
+                    return
+                if step == "review":
+                    moving_entry = big_dict["review"].pop(tick_id)
+                    big_dict["closed"][target_tick] = moving_entry
+                    save_contents(big_dict)
+                    return
 
     #if ticket is moving from review to complete, add a comfirmation line.  if y, push to complete.  if n, push to in-progress
     return
@@ -50,13 +75,11 @@ def main():
         for word in list_val:
             clean_list.append(word.lower())
         ticket_name = list_val[0]
-        print(clean_list)
-        tick_create(clean_list)
         print(f"added ticket!")
     
-    #if args.move:
-        #target_key = args.move()
-        #if target_key in dictionary:
+    if args.move:
+        target_key = args.move.lower()
+        ticket_move(target_key)
 
 
 

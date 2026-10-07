@@ -1,7 +1,15 @@
 {
-    "backlog": {"ticket_name": {"type": "Bug", "detail": "This is where description of issue goes"}},
+    "backlog": {
+        "ticket_name": {
+            "type": "Bug",
+            "detail": "This is where description of issue goes"
+        },
+        "ticket_additions": {
+            "type": "features",
+            "detail": "add an input() function to the ticket creation so tickets can be more verbose with a second line of text, also add timedate signatures and randomly generate numbers for ticket names"
+        }
+    },
     "in-progress": {},
     "review": {},
     "closed": {}
-    
 }

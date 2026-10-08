@@ -4,6 +4,7 @@ import argparse
 
 
 def tick_create(new_entry):
+    #random ticket names to add
     with open("tickets.json", "r") as f:
         tickets = json.load(f)
     title = new_entry[0]
@@ -18,32 +19,46 @@ def save_contents(tickets):
         json.dump(tickets, f, indent=4)
 
 
-def ticket_move(target_tick):
-    with open("tickets.json", "r") as f:
-        big_dict = json.load(f)
-    for step, tick_data in big_dict.items():
-        for tick_id in tick_data:
-            print(tick_id)
-            if tick_id == target_tick:
-                print("attempting movement please hold")
-                if step == "backlog":
-                    moving_entry = big_dict["backlog"].pop(tick_id)
-                    big_dict["in-progress"][target_tick] = moving_entry
-                    save_contents(big_dict)
-                    return
-                if step == "in-progress":
-                    moving_entry = big_dict["in-progress"].pop(tick_id)
-                    big_dict["review"][target_tick] = moving_entry
-                    save_contents(big_dict)
-                    return
-                if step == "review":
-                    moving_entry = big_dict["review"].pop(tick_id)
-                    big_dict["closed"][target_tick] = moving_entry
-                    save_contents(big_dict)
-                    return
+def ticket_move(target_tick, big_dict, step):
+    if step == "backlog":
+        moving_entry = big_dict["backlog"].pop(target_tick)
+        big_dict["in-progress"][target_tick] = moving_entry
+        save_contents(big_dict)
+        return
+    if step == "in-progress":
+        moving_entry = big_dict["in-progress"].pop(target_tick)
+        big_dict["review"][target_tick] = moving_entry
+        save_contents(big_dict)
+        return
+    if step == "review":
+        moving_entry = big_dict["review"].pop(target_tick)
+        big_dict["closed"][target_tick] = moving_entry
+        save_contents(big_dict)
+        return
+    return
 
     #if ticket is moving from review to complete, add a comfirmation line.  if y, push to complete.  if n, push to in-progress
+
+def ticket_remove(target_tick, big_dict, step):
+    big_dict[step].pop(target_tick)
+    with open("tickets.json", "w") as f:
+        json.dump(big_dict, f, indent =4)
+    print("removed!  Try -v command!")
     return
+
+
+
+def ticket_finder(target_tick):
+    try:
+        with open("tickets.json", "r") as f:
+            big_dict = json.load(f)
+        for step, tick_data in big_dict.items():
+            for tick_id in tick_data:
+                print(tick_id)
+                if tick_id == target_tick:
+                    return tick_id, big_dict, step
+    except:
+        Exception("Could not find your ticket.  No action has been made")
 
 def main():
     parser = argparse.ArgumentParser(
@@ -53,6 +68,8 @@ def main():
     parser.add_argument("-v", "--view", action = "store", help = "views contents of dict")
     parser.add_argument("-a", "--add", nargs = 3, action = "store", help = "Add new dictionary entry to dictionary")
     parser.add_argument("-m", "--move", action = "store", help = "Moves the ticket to the next stage, moves entry with matching name")
+    parser.add_argument("-rm", "--remove", action = "store", help = "takes a ticket by name and removes it after confirming with user.")
+    parser.add_argument("-t", "--testfind", action = "store", help = "debugging find method to see if it functions with other methods")
     args = parser.parse_args()
 
     with open("tickets.json", "r")as f:
@@ -79,7 +96,13 @@ def main():
     
     if args.move:
         target_key = args.move.lower()
-        ticket_move(target_key)
+        target_tick, big_dict, step = ticket_finder(target_key)
+        ticket_move(target_tick, big_dict, step)
+
+    if args.remove:
+        target_key = args.remove.lower()
+        target_tick, big_dict, step = ticket_finder(target_key)
+        ticket_remove(target_tick, big_dict, step)
 
 
 

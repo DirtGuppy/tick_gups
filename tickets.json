@@ -11,6 +11,10 @@
         "crc32rng": {
             "type": "feature",
             "detail": "use crc32 with random number gen to title tickets.  rememeber that there will be a copy of this ticket system for every project you create, keep everything self contained"
+        },
+        "5b8a31ee": {
+            "type": "f",
+            "detail": "\"hello!  Testing input within adding function to allow for more verbose ticket descriptions!  Test features quotes.\""
         }
     },
     "in-progress": {},

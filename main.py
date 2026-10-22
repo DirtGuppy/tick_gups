@@ -1,6 +1,10 @@
 import json
 import argparse
 import zlib
+import random
+from datetime import datetime
+import time
+
 
 
 #take arguments from new_entry, should be 2 now, and assign it a name with crc32
@@ -9,12 +13,18 @@ def tick_create(new_entry):
     #random ticket names to add
     with open("tickets.json", "r") as f:
         tickets = json.load(f)
-    name = f"{crc32_checksum:08x}"      #test line
+    name =  name_make()
     context_value = new_entry[0]
-    descript = new_entry[1]
-    tickets["backlog"][title] = {"type": context_value, "detail" : descript}
+    descript = input()
+    tickets["backlog"][name] = {"type": context_value, "detail" : descript}
     save_contents(tickets)
     return
+
+def name_make():
+    random.seed(datetime.now().timestamp())
+    c_seed =bytes(random.randint(0,0xFFFFFF))[2:]
+    name = f"{zlib.crc32(c_seed):08x}"
+    return name
 
 def save_contents(tickets):
     with open("tickets.json", "w")as f:
@@ -45,7 +55,6 @@ def ticket_finder(target_tick):
             big_dict = json.load(f)
         for step, tick_data in big_dict.items():
             for tick_id in tick_data:
-                print(tick_id)
                 if tick_id == target_tick:
                     return tick_id, big_dict, step
     except:
@@ -62,7 +71,7 @@ def main():
     parser.add_argument("-v", "--view", action = "store", help = "views contents of dict")
     #old -a line parser.add_argument("-a", "--add", nargs = 3, action = "store", help = "Add new dictionary entry to dictionary")
     #parser.add_argument("-m", "--move", action = "store", help = "Moves the ticket to the next stage, moves entry with matching name")
-    parser.add_argument("-a", "--add", nargs = 2, action = "store", help = "Add new dictionary entry to dictionary")
+    parser.add_argument("-a", "--add",  action = "store", help = "Add new dictionary entry to dictionary")
     parser.add_argument("-m", "--move", nargs = 2, action = "store", help = "Moves the ticket to the next stage, moves entry with matching name")
     parser.add_argument("-rm", "--remove", action = "store", help = "takes a ticket by name and removes it after confirming with user.")
     parser.add_argument("-t", "--testfind", action = "store", help = "debugging find method to see if it functions with other methods")

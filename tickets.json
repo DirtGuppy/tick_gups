@@ -7,6 +7,10 @@
         "ticket_additions": {
             "type": "features",
             "detail": "add an input() function to the ticket creation so tickets can be more verbose with a second line of text, also add timedate signatures and randomly generate numbers for ticket names"
+        },
+        "crc32rng": {
+            "type": "feature",
+            "detail": "use crc32 with random number gen to title tickets.  rememeber that there will be a copy of this ticket system for every project you create, keep everything self contained"
         }
     },
     "in-progress": {},

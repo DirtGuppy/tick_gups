@@ -1,15 +1,17 @@
 import json
 import argparse
+import zlib
 
 
-
+#take arguments from new_entry, should be 2 now, and assign it a name with crc32
+#/zib
 def tick_create(new_entry):
     #random ticket names to add
     with open("tickets.json", "r") as f:
         tickets = json.load(f)
-    title = new_entry[0]
-    context_value = new_entry[1]
-    descript = new_entry[2]
+    name = f"{crc32_checksum:08x}"      #test line
+    context_value = new_entry[0]
+    descript = new_entry[1]
     tickets["backlog"][title] = {"type": context_value, "detail" : descript}
     save_contents(tickets)
     return
@@ -19,22 +21,11 @@ def save_contents(tickets):
         json.dump(tickets, f, indent=4)
 
 
-def ticket_move(target_tick, big_dict, step):
-    if step == "backlog":
-        moving_entry = big_dict["backlog"].pop(target_tick)
-        big_dict["in-progress"][target_tick] = moving_entry
-        save_contents(big_dict)
-        return
-    if step == "in-progress":
-        moving_entry = big_dict["in-progress"].pop(target_tick)
-        big_dict["review"][target_tick] = moving_entry
-        save_contents(big_dict)
-        return
-    if step == "review":
-        moving_entry = big_dict["review"].pop(target_tick)
-        big_dict["closed"][target_tick] = moving_entry
-        save_contents(big_dict)
-        return
+
+def ticket_move(target_tick, big_dict, step, destination):
+    moving_entry = big_dict[step].pop(target_tick)
+    big_dict[destination][target_tick] = moving_entry
+    save_contents(big_dict)
     return
 
     #if ticket is moving from review to complete, add a comfirmation line.  if y, push to complete.  if n, push to in-progress
@@ -65,9 +56,14 @@ def main():
         description = ""
     )
     #first few will navigate to different 
+    #repurpose -a --add not store a initial "name" argument.
+    #repurpose -m --move to take two arguments, the "name" of the ticket, and the "detination"
+
     parser.add_argument("-v", "--view", action = "store", help = "views contents of dict")
-    parser.add_argument("-a", "--add", nargs = 3, action = "store", help = "Add new dictionary entry to dictionary")
-    parser.add_argument("-m", "--move", action = "store", help = "Moves the ticket to the next stage, moves entry with matching name")
+    #old -a line parser.add_argument("-a", "--add", nargs = 3, action = "store", help = "Add new dictionary entry to dictionary")
+    #parser.add_argument("-m", "--move", action = "store", help = "Moves the ticket to the next stage, moves entry with matching name")
+    parser.add_argument("-a", "--add", nargs = 2, action = "store", help = "Add new dictionary entry to dictionary")
+    parser.add_argument("-m", "--move", nargs = 2, action = "store", help = "Moves the ticket to the next stage, moves entry with matching name")
     parser.add_argument("-rm", "--remove", action = "store", help = "takes a ticket by name and removes it after confirming with user.")
     parser.add_argument("-t", "--testfind", action = "store", help = "debugging find method to see if it functions with other methods")
     args = parser.parse_args()
@@ -92,22 +88,23 @@ def main():
         for word in list_val:
             clean_list.append(word.lower())
         ticket_name = list_val[0]
+        tick_create(clean_list)
         print(f"added ticket!")
     
     if args.move:
-        target_key = args.move.lower()
-        target_tick, big_dict, step = ticket_finder(target_key)
-        ticket_move(target_tick, big_dict, step)
+        list_tar = args.move
+        move_list=[]
+        for word in list_tar:
+            move_list.append(word.lower())
+        target_tick = move_list[0]
+        destination = move_list[1]
+        target_tick, big_dict, step = ticket_finder(target_tick)
+        ticket_move(target_tick, big_dict, step, destination)
 
     if args.remove:
         target_key = args.remove.lower()
         target_tick, big_dict, step = ticket_finder(target_key)
         ticket_remove(target_tick, big_dict, step)
-
-
-
-
-
 
 
 

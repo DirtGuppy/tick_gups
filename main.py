@@ -29,17 +29,17 @@ def main():
         dictionary = tickets.contents_load()
         if target_key in dictionary:
             contents = dictionary[target_key]
-            try:
-                for ticket_name, data in contents.items():
+            for ticket_name, data in contents.items():
+                try:
                     print(f"{ticket_name} |  | type: {data["type"]}")
                     print(f"{data["detail"]}")
                     print(f"Created date: {data["time_created"]} |  Last modified: {data["last_modified"]}")
                     print("_" * 90)
-            except KeyError as e:
-                print(f"this ticket is missing a value in ticket : {e}")
-                #currently this KeyError is NOT verbose enough when multiple values 
-                #are missing, make keyError class or something to hold and print a
-                #list of items
+                except KeyError as e:
+                    print(f"this ticket is missing a value in ticket : {e}")
+                    #currently this KeyError is NOT verbose enough when multiple values 
+                    #are missing, make keyError class or something to hold and print a
+                    #list of items
         else:
             print("what has been typed is not a stage of the ticket system.\n-v will only return contents of backlog, in-progress, review, or closed steps.\nreturning user to console.")
 

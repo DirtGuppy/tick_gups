@@ -2,3 +2,4 @@ documents/
 oldmain.py
 plans/
 oldfiles/
+__pycache__/
